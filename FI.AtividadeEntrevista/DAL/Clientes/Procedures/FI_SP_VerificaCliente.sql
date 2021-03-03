@@ -1,0 +1,10 @@
+﻿CREATE PROC FI_SP_VerificaCliente
+	@CPF			VARCHAR(14),
+	@IdDesconsiderar BIGINT
+AS
+BEGIN
+	IF(ISNULL(@IdDesconsiderar,0) = 0)
+		SELECT 1 FROM CLIENTES WHERE CPF = @CPF
+	ELSE
+		SELECT 1 FROM CLIENTES WHERE CPF = @CPF AND ID != @IdDesconsiderar
+END

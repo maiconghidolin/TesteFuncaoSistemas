@@ -1,0 +1,20 @@
+﻿CREATE PROC FI_SP_PesqCliente
+	@iniciarEm int,
+	@quantidade int,
+	@campoOrdenacao varchar(200)
+AS
+BEGIN
+	DECLARE @SCRIPT NVARCHAR(MAX)
+	DECLARE @CAMPOS NVARCHAR(MAX)
+
+	SET @CAMPOS = '@iniciarEm int,@quantidade int'
+	SET @SCRIPT = 
+	'SELECT ID, NOME, SOBRENOME, NACIONALIDADE, CEP, ESTADO, CIDADE, LOGRADOURO, EMAIL, TELEFONE, CPF FROM
+		(SELECT ROW_NUMBER() OVER (ORDER BY ' + @campoOrdenacao + ') AS Row, ID, NOME, SOBRENOME, NACIONALIDADE, CEP, ESTADO, CIDADE, LOGRADOURO, EMAIL, TELEFONE, CPF FROM CLIENTES WITH(NOLOCK))
+		AS ClientesWithRowNumbers
+	WHERE Row > @iniciarEm AND Row <= (@iniciarEm+@quantidade) ORDER BY ' + @campoOrdenacao
+	
+	EXECUTE SP_EXECUTESQL @SCRIPT, @CAMPOS, @iniciarEm, @quantidade
+
+	SELECT COUNT(1) FROM CLIENTES WITH(NOLOCK)
+END
